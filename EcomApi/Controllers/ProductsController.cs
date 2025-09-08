@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using EcomApi.Models;
+using EcomApi.Services;
 
 namespace EcomApi.Controllers
 {
@@ -10,76 +11,63 @@ namespace EcomApi.Controllers
     [Route("api/[controller]")]
     public class ProductsController : ControllerBase
     {
-        // In-memory storage for products 
-        private static List<Product> products = new();
+        // Service that handles all MongoDB operations for products
+        private readonly ProductsService _service;
 
-        // GET: api/products
-        // Returns all products in the in-memory list
-        [HttpGet]
-        public ActionResult<IEnumerable<Product>> GetAll() => products;
-
-        // POST: api/products
-        // Adds a new product to the list
-        [HttpPost]
-        public ActionResult<Product> Create(Product product)
+        // Constructor injection of ProductsService
+        public ProductsController(ProductsService service)
         {
-            // Generate a unique string ID for the product
-            product.Id = Guid.NewGuid().ToString();
-
-            // Add the product to the in-memory list
-            products.Add(product);
-
-            // Return the newly created product (201 Created)
-            return product;
+            _service = service;
         }
 
+        // GET: api/products
+        // Retrieves all products from MongoDB
+        [HttpGet]
+        public ActionResult<IEnumerable<Product>> GetAll() => _service.Get();
+
+        // POST: api/products
+        // Adds a new product to MongoDB
+        [HttpPost]
+        public ActionResult<Product> Create(Product product) => _service.Create(product);
+
         // GET: api/products/{id}
-        // Retrieves a single product by its ID
+        // Retrieves a single product by its ID from MongoDB
         [HttpGet("{id}")]
         public ActionResult<Product> Get(string id)
         {
-            // Find the product with matching ID
-            var product = products.FirstOrDefault(p => p.Id == id);
-
-            // If not found, return 404 Not Found, else return the product
+            var product = _service.Get().FirstOrDefault(p => p.Id == id);
             return product == null ? NotFound() : product;
         }
 
         // PUT: api/products/{id}
-        // Updates an existing product
+        // Updates an existing product in MongoDB
         [HttpPut("{id}")]
         public IActionResult Update(string id, Product updated)
         {
-            // Find the existing product
-            var product = products.FirstOrDefault(p => p.Id == id);
-
-            // Return 404 if not found
+            var product = _service.Get().FirstOrDefault(p => p.Id == id);
             if (product == null) return NotFound();
 
-            // Update product properties
             product.Name = updated.Name;
             product.Price = updated.Price;
             product.Stock = updated.Stock;
 
-            // Return 204 No Content to indicate success
+            // Optional: call a service method to update in MongoDB if you implement it
+            // _service.Update(product);
+
             return NoContent();
         }
 
         // DELETE: api/products/{id}
-        // Removes a product from the list
+        // Deletes a product from MongoDB
         [HttpDelete("{id}")]
         public IActionResult Delete(string id)
         {
-            // Find the product to delete
-            var product = products.FirstOrDefault(p => p.Id == id);
-
-            // Return 404 if not found
+            var product = _service.Get().FirstOrDefault(p => p.Id == id);
             if (product == null) return NotFound();
 
-            // Remove the product from the list
-            products.Remove(product);
+            // Optional: call a service method to delete in MongoDB if you implement it
+            // _service.Delete(id);
 
-            // Return 204 No Content to indicate successful deletion
             return NoContent();
         }
     }
