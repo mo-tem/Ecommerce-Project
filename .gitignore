@@ -1,0 +1,39 @@
+# .NET
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
+*.cache
+*.log
+*.vsix
+*.user
+*.suo
+*.userosscache
+*.vscode/
+
+# Visual Studio Code
+.vscode/
+*.code-workspace
+
+# Environment / Secrets
+appsettings.*.json
+.env
+
+# PostgreSQL
+*.bak
+*.backup
+
+# MongoDB
+*.bson
+*.dump
+
+# Node modules
+node_modules/
+
+# Docker
+docker-compose.override.yml
+*.dockerfile
+
+# Build outputs
+publish/
