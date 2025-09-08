@@ -1,13 +1,28 @@
+using EcomApi.Data; // Added this to use AppDbContext
+using Microsoft.EntityFrameworkCore; // Needed for UseSqlServer
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+// -----------------------------
+// Add services to the container
+// -----------------------------
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// -----------------------------
+// Register DbContext for SQL Server (Orders)
+// -----------------------------
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Add other services here if needed
+// e.g., builder.Services.AddSingleton<ProductsService>();
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// -----------------------------
+// Configure HTTP request pipeline
+// -----------------------------
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -16,6 +31,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+// Example endpoint (you can keep or remove)
 var summaries = new[]
 {
     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
@@ -23,7 +39,7 @@ var summaries = new[]
 
 app.MapGet("/weatherforecast", () =>
 {
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
+    var forecast = Enumerable.Range(1, 5).Select(index =>
         new WeatherForecast
         (
             DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
@@ -38,6 +54,7 @@ app.MapGet("/weatherforecast", () =>
 
 app.Run();
 
+// Record for example
 record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 {
     public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
